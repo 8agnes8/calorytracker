@@ -1,5 +1,38 @@
 //storage controller
 //create later
+//storage controller
+const StorageCtrl = (function (item){
+    //public methods
+    return {
+        storeItem: function (item){
+            let items;
+
+            if(localStorage.getItem('items') === null) {
+                items = [];
+
+                items.push(item);
+
+                localStorage.setItem('items' , JSON.stringify(items));
+            } else {
+                items = JSON.parse(localStorage.getItem('items'));
+
+                items.push(item);
+
+                localStorage.setItem('items', JSON.stringify(items));
+            }
+
+        },
+        getItemsFromStorgae: function (){
+            let items;
+            if(localStorage.getItem('items') === null){
+                items = [];
+            }  else {
+                items = JSON.parse(localStorage.getItem('items'));
+            }
+            return items;
+        }
+    }
+})();
 
 //item controller
 const ItemCtrl = (function(){
@@ -35,7 +68,19 @@ const ItemCtrl = (function(){
             //
             newItem = new Item(ID, name, calories);
             data.items.push(newItem);
-            return newItem;
+            return newItem
+        },
+        getTotalCalories: function (){
+            let total = 0;
+            //loop thru items and get calories
+            data.items.forEach(function(item){
+                total = total + item.calories;
+            });
+            //set total calories in data structure
+            data.total = total;
+            console.log(data.total)
+            //return total
+            return data.total;
         },
         logData: function (){
             return data
@@ -50,7 +95,8 @@ const UICtrl = (function(){
         itemList: '#item-list',
         itemNameInput: '#item-name',
         itemCaloriesInput: '#item-calories',
-        addBtn: '.add-btn'
+        addBtn: '.add-btn',
+        totalCalories: '.total-calories'
 
     }
     return {
@@ -98,12 +144,16 @@ const UICtrl = (function(){
         clearInput: function(){
             document.querySelector(UISelectors.itemNameInput).value = "";
             document.querySelector(UISelectors.itemCaloriesInput).value = "";
+        },
+        showTotalCalories: function (totalCalories){
+            document.querySelector(UISelectors.totalCalories).
+                textContent = totalCalories;
         }
     }
 })();
 
-//app controller
-const App = (function(ItemCtrl, UICtrl){
+//APP controller
+const App = (function(ItemCtrl, StorageCtrl, UICtrl){
     //load event listeners
     const loadEventListeners = function (){
         //get ui selectors
@@ -111,6 +161,8 @@ const App = (function(ItemCtrl, UICtrl){
         //add item event
         document.querySelector(UISelectors.addBtn);
         addEventListener('click', itemAddSubmit);
+
+        document.addEventListener('DOMContentLoaded' , getItemsFromStorage)
 
     }
     //item add submit function
@@ -121,11 +173,30 @@ const App = (function(ItemCtrl, UICtrl){
         if(input.name !== "" && input.calories !== ""){
             const newItem = ItemCtrl.addItem(input.name, input.calories)
             UICtrl.addListItem(newItem)
+            //get total calories
+            const totalCalories = ItemCtrl.getTotalCalories();
+            //add total calories to ui
+            UICtrl.showTotalCalories(totalCalories);
+            //store in LS
+            StorageCtrl.storeItem(newItem);
             //clear fields
             UICtrl.clearInput();
         }
 
         event.preventDefault()
+    }
+    //get items from storage
+    const  getItemsFromStorage = function (){
+
+        const items = StorageCtrl.getItemsFromStorgae()
+        items.forEach(function (item){
+            ItemCtrl.addItem(item['name'], item['calories'])
+        })
+        //get total calories
+        const totalCalories = ItemCtrl.getTotalCalories();
+        //add total calories to ui
+        UICtrl.showTotalCalories(totalCalories);
+        UICtrl.populateItemList(items)
     }
 
 
@@ -141,7 +212,7 @@ const App = (function(ItemCtrl, UICtrl){
             }
 
         }
-}) (ItemCtrl, UICtrl);
+}) (ItemCtrl, StorageCtrl, UICtrl);
 
 //init app
 App.init()
