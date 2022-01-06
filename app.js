@@ -12,12 +12,13 @@ const ItemCtrl = (function(){
     const data = {
         items: [
             {id: 0, name: 'Steak Dinner' , calories: 1200},
-            {id: 1, name: 'Cake' , calories: 800}
+            {id: 1, name: 'Cookie' , calories: 400},
+            {id: 2, name: 'Eggs' , calories: 300},
         ],
         total: 0
     }
     return {
-        logData: function (){
+        getItems: function (){
             return data.items
         },
         logData: function (){
@@ -28,6 +29,11 @@ const ItemCtrl = (function(){
 
 //UI controller
 const UICtrl = (function(){
+    //ui selectors
+    const UISelectors = {
+        itemList: '#item-list'
+
+    }
     return {
         populateItemList: function (items){
             //create html content
@@ -37,11 +43,11 @@ const UICtrl = (function(){
                 html += `<li class="collection-item" id= item-${item.id}">
                 <strong>${item.name}: </strong> <em>${item.calories} Calories</em>
                 <a href="#" class="secondary-content">
-                   <i class="edit-item fa fa pencil"></i>
+                   <i class="edit-item fa fa-pencil"></i>
                 </a>   
                 </li>`;
             });
-            document.querySelector("#item-list").innerHTML = html;
+            document.querySelector(UISelectors.itemList).innerHTML = html;
         }
     }
 
