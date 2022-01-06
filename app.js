@@ -9,12 +9,12 @@ const ItemCtrl = (function(){
         this.name = name;
         this.calories = calories;
     }
-
+//data structure
     const data = {
         items: [
-            {id: 0, name: 'Steak Dinner' , calories: 1200},
-            {id: 1, name: 'Cookie' , calories: 400},
-            {id: 2, name: 'Eggs' , calories: 300},
+            //{id: 0, name: 'Steak Dinner' , calories: 1200},
+            //{id: 1, name: 'Cookie' , calories: 400},
+            //{id: 2, name: 'Eggs' , calories: 300},
         ],
         total: 0
     }
@@ -78,10 +78,28 @@ const UICtrl = (function(){
                 calories:document.querySelector(UISelectors.itemCaloriesInput).value
 
             }
+        },
+        addListItem: function(item){
+            // create li elements
+            const li = document.createElement("li");
+            // add class
+            li.className = "collection-item";
+            // add ID
+            li.id = `item-${item.id}`;
+            // add HTML
+            li.innerHTML = `<strong>${item.name}: </strong>
+                <em>${item.calories} Calories</em>
+                <a href="#" class="secondary-content">
+                   <li class="edit-item fa fa-pencil"></li>
+                </a>`;
+            // insert item
+            document.querySelector(UISelectors.itemList).insertAdjacentElement("beforeend", li)
+        },
+        clearInput: function(){
+            document.querySelector(UISelectors.itemNameInput).value = "";
+            document.querySelector(UISelectors.itemCaloriesInput).value = "";
         }
-
     }
-
 })();
 
 //app controller
@@ -97,13 +115,14 @@ const App = (function(ItemCtrl, UICtrl){
     }
     //item add submit function
     const itemAddSubmit = function (event){
-        console.log('item add event function');
         //Get form input from ui controller
         const input = UICtrl.getItemInput()
         //check for name and calorie input
-        if(input.name !== '' && input.calories !== ''){
+        if(input.name !== "" && input.calories !== ""){
             const newItem = ItemCtrl.addItem(input.name, input.calories)
-            console.log(newItem)
+            UICtrl.addListItem(newItem)
+            //clear fields
+            UICtrl.clearInput();
         }
 
         event.preventDefault()
@@ -113,7 +132,7 @@ const App = (function(ItemCtrl, UICtrl){
 
     return {
         init: function (){
-            console.log('Initializing App')
+            console.log("Initializing App")
             //fetch items from data struck
             const items = ItemCtrl.getItems()
             UICtrl.populateItemList(items)
